@@ -1,0 +1,48 @@
+Function Name: 1
+Function Type: Text
+Select [Name],ProductNumber,Price
+FROM  Product
+_End
+
+Function Name: 2
+Function Type: Text
+Select *
+From HumanResources.Employee
+Where HireDate>'2009-01-01'
+_End
+
+Function Name: 3
+Function Type: Stored Procedure
+Parametres:@BusinessEntityID - Business_Entity_ID
+Create Procedure uspGetEmployeeManagersPerDepartment(@BusinessEntityID int)
+
+AS
+
+Begin
+
+
+
+	Select  P.BusinessEntityID,P.FirstName,P.LastName,E.JobTitle,E.Gender,NewTable.Gender as ManagerGender,NewTable.FirstName as ManagerFirstName,NewTable.LastName as ManagerLastName,NewTable.JobTitle
+
+	From HumanResources.EmployeeDepartmentHistory EDH 
+
+		inner join HumanResources.Employee E on E.BusinessEntityID=EDH.BusinessEntityID
+
+		inner join Person.Person P on P.BusinessEntityID=EDH.BusinessEntityID
+
+		left join ( Select E.Gender,EDH.DepartmentID as  ManagerDepartmentID,P.FirstName,P.LastName,E.JobTitle
+
+					From HumanResources.EmployeeDepartmentHistory EDH 
+
+					inner join HumanResources.Employee E on E.BusinessEntityID=EDH.BusinessEntityID
+
+					inner join Person.Person P on P.BusinessEntityID=EDH.BusinessEntityID 
+
+					Where E.JobTitle Like('%Manager%'))
+
+					 as NewTable on EDH.DepartmentID=NewTable.ManagerDepartmentID
+
+	Where E.BusinessEntityID=@BusinessEntityID
+
+End
+_End
